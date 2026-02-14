@@ -1,7 +1,23 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import List
 from datetime import datetime
 
+
+class UserBase(BaseModel):
+    id: int
+    username: str
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+class UserResponse(UserBase):
+    id: int
+    username: str
+    class Config:
+        orm_mode = True
+
+class UserCreate(UserBase):
+    username: str = Field(min_length=3, max_length=100)
+    password: str = Field(min_length=5, max_length=20)
 
 class NoteBase(BaseModel):
     id: int
