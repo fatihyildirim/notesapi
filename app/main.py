@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import Optional
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from . import models, db, schemas, auth
@@ -74,15 +75,38 @@ def read_users(
 
 @app.get("/notes", response_model=list[schemas.NoteResponse])
 def read_notes(
+        skip: int = 0, limit: int = 10,
         db: Session = Depends(db.get_db),
-        current_user: models.UserModel = Depends(get_current_user)
+        current_user: models.UserModel = Depends(get_current_user),
     ):
-    notes = db.query(models.NoteModel) \
+    notes = db.query(models.NoteModel)\
         .filter(models.NoteModel.owner_id == current_user.id)\
         .order_by(models.NoteModel.created_at.desc())\
+        .offset(skip)\
+        .limit(limit)\
         .all()
 
     return notes
+
+@app.get("/notes/search", response_model=list[schemas.NoteResponse])
+def search_notes(
+        query: Optional[str] = None,
+        category: Optional[str] = None,
+        db: Session = Depends(db.get_db),
+        current_user: models.UserModel = Depends(get_current_user),
+    ):
+    search_query = db.query(models.NoteModel).filter(models.NoteModel.owner_id == current_user.id)
+
+    if query:
+        search_query = search_query.filter(
+            models.NoteModel.title.ilike(f"%{query}%"),
+            models.NoteModel.content.ilike(f"%{query}%"),
+        )
+
+    if category:
+        search_query = search_query.filter(models.NoteModel.category == category)
+
+    return search_query.all()
 
 @app.get("/notes/{id}")
 def get_note(
