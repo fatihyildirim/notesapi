@@ -10,8 +10,12 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from . import models, db, schemas, auth
 
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri=REDIS_URL
+)
 app = FastAPI(title="Notes")
 models.Base.metadata.create_all(bind=db.engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
