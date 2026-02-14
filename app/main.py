@@ -1,16 +1,23 @@
 import os
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from . import models, db, schemas, auth
 
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="Notes")
 models.Base.metadata.create_all(bind=db.engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 origins = [
     "http://localhost",
@@ -48,7 +55,9 @@ def root():
     }
 
 @app.post("/token")
+@limiter.limit("5/minute")
 def login(
+        request: Request,
         form_data: OAuth2PasswordRequestForm = Depends(),
         db: Session = Depends(db.get_db)
     ):
@@ -62,7 +71,9 @@ def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/register", status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 def register(
+        request: Request,
         user: schemas.UserCreate,
         db: Session = Depends(db.get_db)
     ):
@@ -81,7 +92,9 @@ def register(
     return {"message": "User created successfully", "id": new_user.id}
 
 @app.get("/users", response_model=list[schemas.UserResponse])
+@limiter.limit("60/minute")
 def read_users(
+        request: Request,
         db: Session = Depends(db.get_db)
     ):
     users = db.query(models.UserModel).all()
@@ -89,7 +102,9 @@ def read_users(
     return users
 
 @app.get("/notes", response_model=list[schemas.NoteResponse])
+@limiter.limit("60/minute")
 def read_notes(
+        request: Request,
         skip: int = 0, limit: int = 10,
         db: Session = Depends(db.get_db),
         current_user: models.UserModel = Depends(get_current_user),
@@ -104,7 +119,9 @@ def read_notes(
     return notes
 
 @app.get("/notes/search", response_model=list[schemas.NoteResponse])
+@limiter.limit("60/minute")
 def search_notes(
+        request: Request,
         query: Optional[str] = None,
         category: Optional[str] = None,
         db: Session = Depends(db.get_db),
@@ -124,7 +141,9 @@ def search_notes(
     return search_query.all()
 
 @app.get("/notes/{id}")
+@limiter.limit("60/minute")
 def get_note(
+        request: Request,
         id: int,
         db: Session = Depends(db.get_db)
     ):
@@ -135,7 +154,9 @@ def get_note(
     return note
 
 @app.post("/notes", response_model=schemas.NoteResponse)
+@limiter.limit("60/minute")
 def create_note(
+        request: Request,
         note: schemas.NoteCreate,
         db: Session = Depends(db.get_db),
         current_user: models.UserModel = Depends(get_current_user)
@@ -148,7 +169,9 @@ def create_note(
     return db_note
 
 @app.delete("/notes/{id}")
+@limiter.limit("60/minute")
 def delete_note(
+        request: Request,
         id: int,
         db: Session = Depends(db.get_db)
     ):
