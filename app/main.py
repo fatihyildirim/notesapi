@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from . import models, db, schemas, auth
@@ -10,6 +11,20 @@ from . import models, db, schemas, auth
 app = FastAPI(title="Notes")
 models.Base.metadata.create_all(bind=db.engine)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(db.get_db)):
     try:
