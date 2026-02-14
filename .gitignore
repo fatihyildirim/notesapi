@@ -1,0 +1,124 @@
+# ----------------------
+# PYTHON
+# ----------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# ----------------------
+# FASTAPI / APP
+# ----------------------
+*.log
+logs/
+
+# SQLite (if used for local dev)
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# ----------------------
+# UVICORN
+# ----------------------
+uvicorn*.log
+
+# ----------------------
+# IDE / EDITOR
+# ----------------------
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# ----------------------
+# MYPY / TYPE CHECK
+# ----------------------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ----------------------
+# PYTEST
+# ----------------------
+.pytest_cache/
+
+# ----------------------
+# DOCKER
+# ----------------------
+
+# Docker override for local development
+docker-compose.override.yml
+
+# Docker volumes (if created inside project)
+docker-data/
+volumes/
+
+# ----------------------
+# ALEMBIC
+# ----------------------
+# keep migrations but ignore compiled files
+**/migrations/__pycache__/
+
+# ----------------------
+# CACHE
+# ----------------------
+*.cache
+
+# ----------------------
+# TEMP FILES
+# ----------------------
+*.swp
+*.swo
+*~
