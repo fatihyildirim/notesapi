@@ -11,18 +11,11 @@ from app import models
 config = context.config
 
 import os
-from urllib.parse import quote_plus
 from dotenv import load_dotenv
 
 load_dotenv()
 
-user = os.getenv("POSTGRES_USER")
-password = quote_plus(os.getenv("POSTGRES_PASSWORD"))
-host = os.getenv("POSTGRES_HOST")
-port = os.getenv("POSTGRES_PORT")
-db = os.getenv("POSTGRES_DB")
-
-database_url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db}"
+database_url = DATABASE_URL = os.getenv("DATABASE_URL")
 
 config.set_main_option("sqlalchemy.url", database_url)
 
