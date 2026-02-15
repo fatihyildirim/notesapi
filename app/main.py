@@ -67,7 +67,7 @@ def login(
     ):
     user = db.query(models.UserModel).filter(models.UserModel.username == form_data.username).first()
 
-    if not user or auth.verify_password(form_data.password, user.hashed_password):
+    if not user or not auth.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
     access_token = auth.create_access_token(data={"sub": user.username})
